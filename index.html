@@ -3,153 +3,222 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Таро Ворожіння</title>
+    <title>Містичне Таро</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: radial-gradient(circle, #1a0f2e 0%, #0a0514 100%);
-            color: #fff;
+            background-color: #120c1f;
+            color: #f3e6ff;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            text-align: center;
             margin: 0;
             padding: 20px;
+            user-select: none;
+        }
+        h2 {
+            color: #ffd700;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        p {
+            color: #bfa3ff;
+            font-size: 14px;
+            margin-top: 0;
+            margin-bottom: 25px;
+        }
+        .table-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        /* 3D Сцена для карти */
+        .card-container {
+            perspective: 1000px;
+            aspect-ratio: 2 / 3.5;
+            width: 100%;
+        }
+        .card {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+        /* Сторони карти */
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
-            box-sizing: border-box;
-        }
-        h2 {
-            color: #d4af37;
-            text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
-            margin-bottom: 10px;
-            text-align: center;
-        }
-        .hint {
-            color: #aaa;
-            font-size: 14px;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-        .cards-container {
-            display: flex;
             justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-            max-width: 500px;
-            margin-bottom: 40px;
+            box-sizing: border-box;
+            border: 2px solid #5d3b9e;
         }
-        .card {
-            width: 90px;
-            height: 150px;
-            background: linear-gradient(135deg, #3a1c5c 0%, #1f0d33 100%);
-            border: 2px solid #d4af37;
-            border-radius: 10px;
-            cursor: pointer;
-            position: relative;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            transition: all 0.3s ease;
-            display: flex;
+        /* Сорочка карти */
+        .card-back {
+            background: linear-gradient(135deg, #1d1135 0%, #0b0518 100%);
+            background-image: radial-gradient(circle, #5d3b9e 1px, transparent 1px);
+            background-size: 16px 16px;
+        }
+        .card-back::after {
+            content: "🔮";
+            font-size: 32px;
+            filter: drop-shadow(0 0 8px #9d6eff);
+        }
+        /* Лицьова сторона */
+        .card-front {
+            background: linear-gradient(135deg, #2a1b4e 0%, #170e30 100%);
+            transform: rotateY(180deg);
+            border-color: #ffd700;
+            padding: 10px;
+        }
+        .card-front .icon {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+        .card-front .name {
+            font-size: 11px;
+            font-weight: bold;
+            color: #ffd700;
+            text-align: center;
+        }
+        /* Екран завантаження */
+        #loader {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(18, 12, 31, 0.9);
+            flex-direction: column;
             align-items: center;
             justify-content: center;
+            z-index: 1000;
         }
-        /* Ефект сорочки карти */
-        .card::before {
-            content: "🔮";
-            font-size: 30px;
-            opacity: 0.7;
+        .spinner {
+            width: 50px; height: 50px;
+            border: 5px solid #331b52;
+            border-top: 5px solid #ffd700;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
         }
-        .card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 25px rgba(212, 175, 55, 0.3);
-            border-color: #fff;
-        }
-        .card.selected {
-            border-color: #00ffcc;
-            box-shadow: 0 0 20px #00ffcc;
-            transform: translateY(-15px) scale(1.05);
-        }
-        .btn {
-            background: linear-gradient(90deg, #d4af37 0%, #aa8513 100%);
-            color: #0a0514;
-            border: none;
-            padding: 15px 40px;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 30px;
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4);
-            transition: all 0.3s ease;
-            display: none; /* Показуємо тільки коли карти обрано */
-        }
-        .btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.6);
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
 
     <h2>Оберіть карти долі</h2>
-    <div class="hint">Доторкніться до 3-х карт, щоб зазирнути у майбутнє</div>
+    <p>Доторкніться до 3-х карт, щоб зазирнути у майбутнє</p>
 
-    <div class="cards-container">
-        <div class="card" onclick="selectCard(this, 1)"></div>
-        <div class="card" onclick="selectCard(this, 2)"></div>
-        <div class="card" onclick="selectCard(this, 3)"></div>
-        <div class="card" onclick="selectCard(this, 4)"></div>
-        <div class="card" onclick="selectCard(this, 5)"></div>
-        <div class="card" onclick="selectCard(this, 6)"></div>
-        <div class="card" onclick="selectCard(this, 7)"></div>
-        <div class="card" onclick="selectCard(this, 8)"></div>
-        <div class="card" onclick="selectCard(this, 9)"></div>
+    <div class="table-container" id="table">
+        <!-- Генерація 9 карт -->
     </div>
 
-    <button class="btn" id="sendBtn" onclick="sendResult()">Дізнатися передбачення</button>
+    <div id="loader">
+        <div class="spinner"></div>
+        <div style="color: #ffd700; font-weight: bold;">Зв'язок з тонким світом...</div>
+    </div>
 
     <script>
-        // Ініціалізація Telegram WebApp
         const tg = window.Telegram.WebApp;
-        tg.expand(); // Розгортаємо вікно на максимум
+        tg.ready();
+        tg.expand();
 
-        // Масив усіх карт Старших Арканів для випадкового вибору
+        // Пул містичних карт для випадкового відображення на столі
         const tarotDeck = [
-            "Дурень", "Маг", "Верховна Жриця", "Імператриця", "Імператор", 
-            "Ієрофант", "Закохані", "Колісниця", "Сила", "Відшельник", 
-            "Колесо Фортуни", "Справедливість", "Повішений", "Смерть", 
-            "Помірність", "Диявол", "Вежа", "Зірка", "Місяць", "Сонце", 
-            "Суд", "Світ"
+            { name: "Дурень", icon: "🃏" }, { name: "Маг", icon: "🧙‍♂️" },
+            { name: "Верховна Жриця", icon: "🌙" }, { name: "Імператриця", icon: "👑" },
+            { name: "Імператор", icon: "⚔️" }, { name: "Ієрофант", icon: "📜" },
+            { name: "Закохані", icon: "❤️" }, { name: "Колісниця", icon: "🛡️" },
+            { name: "Сила", icon: "🦁" }, { name: "Самітник", icon: "🕯️" },
+            { name: "Колесо Фортуни", icon: "🎡" }, { name: "Справедливість", icon: "⚖️" },
+            { name: "Повішений", icon: "⏳" }, { name: "Смерть", icon: "💀" },
+            { name: "Помірність", icon: "⚱️" }, { name: "Диявол", icon: "🔥" },
+            { name: "Вежа", icon: "⚡" }, { name: "Зірка", icon: "⭐" },
+            { name: "Місяць", icon: "🐺" }, { name: "Сонце", icon: "☀️" },
+            { name: "Суд", icon: "🔔" }, { name: "Світ", icon: "🌍" }
         ];
 
+        // Перемішуємо карти для поточної сесії
+        const shuffledDeck = [...tarotDeck].sort(() => 0.5 - Math.random()).slice(0, 9);
+        const table = document.getElementById('table');
         let selectedCards = [];
+        let isProcessing = false;
 
-        function selectCard(element, id) {
-            if (element.classList.contains('selected')) {
-                element.classList.remove('selected');
-                selectedCards = selectedCards.filter(item => item !== id);
-            } else {
-                if (selectedCards.length >= 3) return; // Максимум 3 карти
-                element.classList.add('selected');
-                selectedCards.push(id);
-            }
+        // Створюємо карти на столі
+        shuffledDeck.forEach((cardData, index) => {
+            const container = document.createElement('div');
+            container.className = 'card-container';
 
-            // Показуємо кнопку, якщо обрано рівно 3 карти
-            const btn = document.getElementById('sendBtn');
-            if (selectedCards.length === 3) {
-                btn.style.display = 'block';
-            } else {
-                btn.style.display = 'none';
-            }
-        }
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.dataset.index = index;
 
-        function sendResult() {
-            // Перемішуємо колоду і дістаємо 3 випадкові карти
-            const shuffled = tarotDeck.sort(() => 0.5 - Math.random());
-            const result = [shuffled[0], shuffled[1], shuffled[2]];
+            const back = document.createElement('div');
+            back.className = 'card-face card-back';
 
-            // Передаємо результат назад боту у вигляді JSON-рядка
-            tg.sendData(JSON.stringify({cards: result}));
-            tg.close(); // Закриваємо Web App вікно
-        }
+            const front = document.createElement('div');
+            front.className = 'card-face card-front';
+            
+            const icon = document.createElement('div');
+            icon.className = 'icon';
+            icon.innerText = cardData.icon;
+
+            const name = document.createElement('div');
+            name.className = 'name';
+            name.innerText = cardData.name;
+
+            front.appendChild(icon);
+            front.appendChild(name);
+            card.appendChild(back);
+            card.appendChild(front);
+            container.appendChild(card);
+            table.appendChild(container);
+
+            // Обробка кліку по карті
+            card.addEventListener('click', function() {
+                if (isProcessing || card.classList.contains('flipped')) return;
+
+                // Визначаємо стан карти випадковим чином (пряма чи перевернута)
+                const isReversed = Math.random() < 0.25; 
+                card.classList.add('flipped');
+                
+                if (isReversed) {
+                    front.style.transform = 'rotateY(180deg) rotate(180deg)';
+                }
+
+                selectedCards.push({
+                    name: cardData.name,
+                    isReversed: isReversed
+                });
+
+                // Якщо обрано 3 карти — блокуємо стіл та відправляємо боту
+                if (selectedCards.length === 3) {
+                    isProcessing = true;
+                    document.getElementById('loader').style.display = 'flex';
+
+                    // Відправляємо структуровані дані у форматі JSON
+                    setTimeout(() => {
+                        tg.sendData(JSON.stringify({ cards: selectedCards }));
+                        // Чарівна команда миттєвого повного закриття сайту!
+                        tg.close();
+                    }, 1200);
+                }
+            });
+        });
     </script>
 </body>
 </html>

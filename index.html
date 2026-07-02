@@ -33,7 +33,6 @@
             max-width: 400px;
             margin: 0 auto;
         }
-        /* 3D Сцена для карти */
         .card-container {
             perspective: 1000px;
             aspect-ratio: 2 / 3.5;
@@ -50,7 +49,6 @@
         .card.flipped {
             transform: rotateY(180deg);
         }
-        /* Сторони карти */
         .card-face {
             position: absolute;
             width: 100%;
@@ -58,42 +56,38 @@
             backface-visibility: hidden;
             border-radius: 10px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
             box-sizing: border-box;
-            border: 2px solid #5d3b9e;
+            overflow: hidden;
         }
-        /* Сорочка карти */
+        /* Стильна сорочка з містичним візерунком */
         .card-back {
             background: linear-gradient(135deg, #1d1135 0%, #0b0518 100%);
             background-image: radial-gradient(circle, #5d3b9e 1px, transparent 1px);
             background-size: 16px 16px;
+            border: 2px solid #5d3b9e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .card-back::after {
             content: "🔮";
             font-size: 32px;
             filter: drop-shadow(0 0 8px #9d6eff);
         }
-        /* Лицьова сторона */
+        /* Лицьова сторона з повнорозмірною картинкою карти */
         .card-front {
-            background: linear-gradient(135deg, #2a1b4e 0%, #170e30 100%);
+            background: #170e30;
             transform: rotateY(180deg);
-            border-color: #ffd700;
-            padding: 10px;
+            border: 2px solid #ffd700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .card-front .icon {
-            font-size: 28px;
-            margin-bottom: 5px;
+        .card-front img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
-        .card-front .name {
-            font-size: 11px;
-            font-weight: bold;
-            color: #ffd700;
-            text-align: center;
-        }
-        /* Екран завантаження */
         #loader {
             display: none;
             position: fixed;
@@ -123,13 +117,11 @@
     <h2>Оберіть карти долі</h2>
     <p>Доторкніться до 3-х карт, щоб зазирнути у майбутнє</p>
 
-    <div class="table-container" id="table">
-        <!-- Генерація 9 карт -->
-    </div>
+    <div class="table-container" id="table"></div>
 
     <div id="loader">
         <div class="spinner"></div>
-        <div style="color: #ffd700; font-weight: bold;">Зв'язок з тонким світом...</div>
+        <div style="color: #ffd700; font-weight: bold; text-shadow: 0 0 5px rgba(255,215,0,0.4);">Зв'язок з тонким світом...</div>
     </div>
 
     <script>
@@ -137,35 +129,34 @@
         tg.ready();
         tg.expand();
 
-        // Пул містичних карт для випадкового відображення на столі
+        // Базовий URL для якісних зображень колоди Райдера-Вейта
+        const imgBase = "https://www.sacred-texts.com/tarot/pkt/img/";
+
         const tarotDeck = [
-            { name: "Дурень", icon: "🃏" }, { name: "Маг", icon: "🧙‍♂️" },
-            { name: "Верховна Жриця", icon: "🌙" }, { name: "Імператриця", icon: "👑" },
-            { name: "Імператор", icon: "⚔️" }, { name: "Ієрофант", icon: "📜" },
-            { name: "Закохані", icon: "❤️" }, { name: "Колісниця", icon: "🛡️" },
-            { name: "Сила", icon: "🦁" }, { name: "Самітник", icon: "🕯️" },
-            { name: "Колесо Фортуни", icon: "🎡" }, { name: "Справедливість", icon: "⚖️" },
-            { name: "Повішений", icon: "⏳" }, { name: "Смерть", icon: "💀" },
-            { name: "Помірність", icon: "⚱️" }, { name: "Диявол", icon: "🔥" },
-            { name: "Вежа", icon: "⚡" }, { name: "Зірка", icon: "⭐" },
-            { name: "Місяць", icon: "🐺" }, { name: "Сонце", icon: "☀️" },
-            { name: "Суд", icon: "🔔" }, { name: "Світ", icon: "🌍" }
+            { name: "Дурень", file: "ar00.jpg" }, { name: "Маг", file: "ar01.jpg" },
+            { name: "Верховна Жриця", file: "ar02.jpg" }, { name: "Імператриця", file: "ar03.jpg" },
+            { name: "Імператор", file: "ar04.jpg" }, { name: "Ієрофант", file: "ar05.jpg" },
+            { name: "Закохані", file: "ar06.jpg" }, { name: "Колісниця", file: "ar07.jpg" },
+            { name: "Сила", file: "ar08.jpg" }, { name: "Самітник", file: "ar09.jpg" },
+            { name: "Колесо Фортуни", file: "ar10.jpg" }, { name: "Справедливість", file: "ar11.jpg" },
+            { name: "Повішений", file: "ar12.jpg" }, { name: "Смерть", file: "ar13.jpg" },
+            { name: "Помірність", file: "ar14.jpg" }, { name: "Диявол", file: "ar15.jpg" },
+            { name: "Вежа", file: "ar16.jpg" }, { name: "Зірка", file: "ar17.jpg" },
+            { name: "Місяць", file: "ar18.jpg" }, { name: "Сонце", file: "ar19.jpg" },
+            { name: "Суд", file: "ar20.jpg" }, { name: "Світ", file: "ar21.jpg" }
         ];
 
-        // Перемішуємо карти для поточної сесії
         const shuffledDeck = [...tarotDeck].sort(() => 0.5 - Math.random()).slice(0, 9);
         const table = document.getElementById('table');
         let selectedCards = [];
         let isProcessing = false;
 
-        // Створюємо карти на столі
         shuffledDeck.forEach((cardData, index) => {
             const container = document.createElement('div');
             container.className = 'card-container';
 
             const card = document.createElement('div');
             card.className = 'card';
-            card.dataset.index = index;
 
             const back = document.createElement('div');
             back.className = 'card-face card-back';
@@ -173,31 +164,24 @@
             const front = document.createElement('div');
             front.className = 'card-face card-front';
             
-            const icon = document.createElement('div');
-            icon.className = 'icon';
-            icon.innerText = cardData.icon;
+            const img = document.createElement('img');
+            img.src = imgBase + cardData.file;
+            img.alt = cardData.name;
+            front.appendChild(img);
 
-            const name = document.createElement('div');
-            name.className = 'name';
-            name.innerText = cardData.name;
-
-            front.appendChild(icon);
-            front.appendChild(name);
             card.appendChild(back);
             card.appendChild(front);
             container.appendChild(card);
             table.appendChild(container);
 
-            // Обробка кліку по карті
             card.addEventListener('click', function() {
                 if (isProcessing || card.classList.contains('flipped')) return;
 
-                // Визначаємо стан карти випадковим чином (пряма чи перевернута)
                 const isReversed = Math.random() < 0.25; 
                 card.classList.add('flipped');
                 
                 if (isReversed) {
-                    front.style.transform = 'rotateY(180deg) rotate(180deg)';
+                    img.style.transform = 'rotate(180deg)';
                 }
 
                 selectedCards.push({
@@ -205,17 +189,14 @@
                     isReversed: isReversed
                 });
 
-                // Якщо обрано 3 карти — блокуємо стіл та відправляємо боту
                 if (selectedCards.length === 3) {
                     isProcessing = true;
                     document.getElementById('loader').style.display = 'flex';
 
-                    // Відправляємо структуровані дані у форматі JSON
                     setTimeout(() => {
                         tg.sendData(JSON.stringify({ cards: selectedCards }));
-                        // Чарівна команда миттєвого повного закриття сайту!
                         tg.close();
-                    }, 1200);
+                    }, 1500);
                 }
             });
         });

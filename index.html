@@ -132,21 +132,33 @@
         tg.ready();
         tg.expand();
 
-        const imgBase = "https://www.sacred-texts.com/tarot/pkt/img/";
+        // Посилання на відносний шлях у вашому GitHub репозиторії
+        const imgBase = "./";
 
-        // 22 Старші Аркани, які повністю збігаються з нашою SQLite базою
+        // Повний список карт із назвами файлів, завантаженими в репозиторій
         const tarotDeck = [
-            { name: "Дурень", file: "ar00.jpg" }, { name: "Маг", file: "ar01.jpg" },
-            { name: "Верховна Жриця", file: "ar02.jpg" }, { name: "Імператриця", file: "ar03.jpg" },
-            { name: "Імператор", file: "ar04.jpg" }, { name: "Ієрофант", file: "ar05.jpg" },
-            { name: "Закохані", file: "ar06.jpg" }, { name: "Колісниця", file: "ar07.jpg" },
-            { name: "Сила", file: "ar08.jpg" }, { name: "Самітник", file: "ar09.jpg" },
-            { name: "Колесо Фортуни", file: "ar10.jpg" }, { name: "Справедливість", file: "ar11.jpg" },
-            { name: "Повішений", file: "ar12.jpg" }, { name: "Смерть", file: "ar13.jpg" },
-            { name: "Помірність", file: "ar14.jpg" }, { name: "Диявол", file: "ar15.jpg" },
-            { name: "Вежа", file: "ar16.jpg" }, { name: "Зірка", file: "ar17.jpg" },
-            { name: "Місяць", file: "ar18.jpg" }, { name: "Сонце", file: "ar19.jpg" },
-            { name: "Суд", file: "ar20.jpg" }, { name: "Світ", file: "ar21.jpg" }
+            { name: "Дурень", file: "дурень.jpg" },
+            { name: "Маг", file: "маг.jpg" },
+            { name: "Верховна Жриця", file: "верховна_жриця.jpg" },
+            { name: "Імператриця", file: "імператриця.jpg" },
+            { name: "Імператор", file: "імператор.jpg" },
+            { name: "Ієрофант", file: "ієрофант.jpg" },
+            { name: "Закохані", file: "закохані.jpg" },
+            { name: "Колісниця", file: "колісниця.jpg" },
+            { name: "Сила", file: "сила.jpg" },
+            { name: "Самітник", file: "самітник.jpg" },
+            { name: "Колесо Фортуни", file: "колесо_фортуни.jpg" },
+            { name: "Справедливість", file: "справедливість.jpg" },
+            { name: "Повішений", file: "повішений.jpg" },
+            { name: "Смерть", file: "смерть.jpg" },
+            { name: "Помірність", file: "помірність.jpg" },
+            { name: "Диявол", file: "диявол.jpg" },
+            { name: "Вежа", file: "вежа.jpg" },
+            { name: "Зірка", file: "зірка.jpg" },
+            { name: "Місяць", file: "місяць.jpg" },
+            { name: "Сонце", file: "сонце.jpg" },
+            { name: "Суд", file: "суд.jpg" },
+            { name: "Світ", file: "світ.jpg" }
         ];
 
         // Перемішуємо і беремо 9 випадкових сорочок для викладки на стіл
@@ -169,7 +181,7 @@
             front.className = 'card-face card-front';
             
             const img = document.createElement('img');
-            img.src = imgBase + cardData.file;
+            img.src = imgBase + encodeURIComponent(cardData.file);
             img.alt = cardData.name;
             front.appendChild(img);
 

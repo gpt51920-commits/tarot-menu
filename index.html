@@ -85,11 +85,23 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
         }
         .card-front img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+        }
+        .card-title-fallback {
+            position: absolute;
+            bottom: 5px;
+            left: 0;
+            right: 0;
+            background: rgba(18, 12, 31, 0.85);
+            color: #ffd700;
+            font-size: 11px;
+            padding: 3px;
+            font-weight: bold;
         }
         #loader {
             display: none;
@@ -132,36 +144,35 @@
         tg.ready();
         tg.expand();
 
-        // Базове посилання на завантажені файли у вашому GitHub репозиторії
-        const imgBase = "https://raw.githubusercontent.com/gpt51920-commits/tarot-menu/main/";
+        // Основна база та резервне джерело
+        const primaryBase = "https://raw.githubusercontent.com/gpt51920-commits/tarot-menu/main/";
+        const fallbackBase = "https://www.sacred-texts.com/tarot/pkt/img/";
 
-        // Масив карт із точними назвами завантажених файлів
         const tarotDeck = [
-            { name: "Дурень", file: "дурень.jpg" },
-            { name: "Маг", file: "маг.jpg" },
-            { name: "Верховна Жриця", file: "верховна_жриця.jpg" },
-            { name: "Імператриця", file: "імператриця.jpg" },
-            { name: "Імператор", file: "імператор.jpg" },
-            { name: "Ієрофант", file: "ієрофант.jpg" },
-            { name: "Закохані", file: "закохані.jpg" },
-            { name: "Колісниця", file: "колісниця.jpg" },
-            { name: "Сила", file: "сила.jpg" },
-            { name: "Самітник", file: "самітник.jpg" },
-            { name: "Колесо Фортуни", file: "колесо_фортуни.jpg" },
-            { name: "Справедливість", file: "справедливість.jpg" },
-            { name: "Повішений", file: "повішений.jpg" },
-            { name: "Смерть", file: "смерть.jpg" },
-            { name: "Помірність", file: "помірність.jpg" },
-            { name: "Диявол", file: "диявол.jpg" },
-            { name: "Вежа", file: "вежа.jpg" },
-            { name: "Зірка", file: "зірка.jpg" },
-            { name: "Місяць", file: "місяць.jpg" },
-            { name: "Сонце", file: "сонце.jpg" },
-            { name: "Суд", file: "суд.jpg" },
-            { name: "Світ", file: "світ.jpg" }
+            { name: "Дурень", file: "дурень.jpg", fallback: "ar00.jpg" },
+            { name: "Маг", file: "маг.jpg", fallback: "ar01.jpg" },
+            { name: "Верховна Жриця", file: "верховна_жриця.jpg", fallback: "ar02.jpg" },
+            { name: "Імператриця", file: "імператриця.jpg", fallback: "ar03.jpg" },
+            { name: "Імператор", file: "імператор.jpg", fallback: "ar04.jpg" },
+            { name: "Ієрофант", file: "ієрофант.jpg", fallback: "ar05.jpg" },
+            { name: "Закохані", file: "закохані.jpg", fallback: "ar06.jpg" },
+            { name: "Колісниця", file: "колісниця.jpg", fallback: "ar07.jpg" },
+            { name: "Сила", file: "сила.jpg", fallback: "ar08.jpg" },
+            { name: "Самітник", file: "самітник.jpg", fallback: "ar09.jpg" },
+            { name: "Колесо Фортуни", file: "колесо_фортуни.jpg", fallback: "ar10.jpg" },
+            { name: "Справедливість", file: "справедливість.jpg", fallback: "ar11.jpg" },
+            { name: "Повішений", file: "повішений.jpg", fallback: "ar12.jpg" },
+            { name: "Смерть", file: "смерть.jpg", fallback: "ar13.jpg" },
+            { name: "Помірність", file: "помірність.jpg", fallback: "ar14.jpg" },
+            { name: "Диявол", file: "диявол.jpg", fallback: "ar15.jpg" },
+            { name: "Вежа", file: "вежа.jpg", fallback: "ar16.jpg" },
+            { name: "Зірка", file: "зірка.jpg", fallback: "ar17.jpg" },
+            { name: "Місяць", file: "місяць.jpg", fallback: "ar18.jpg" },
+            { name: "Сонце", file: "сонце.jpg", fallback: "ar19.jpg" },
+            { name: "Суд", file: "суд.jpg", fallback: "ar20.jpg" },
+            { name: "Світ", file: "світ.jpg", fallback: "ar21.jpg" }
         ];
 
-        // Перемішуємо і беремо 9 випадкових сорочок для викладки на стіл
         const shuffledDeck = [...tarotDeck].sort(() => 0.5 - Math.random()).slice(0, 9);
         const table = document.getElementById('table');
         let selectedCards = [];
@@ -178,11 +189,18 @@
             back.className = 'card-face card-back';
 
             const front = document.createElement('div');
-            front.className = 'card-face card-front';
+            front.className = 'card-front card-face';
             
             const img = document.createElement('img');
-            img.src = imgBase + encodeURIComponent(cardData.file);
+            img.src = primaryBase + encodeURI(cardData.file);
             img.alt = cardData.name;
+
+            // Якщо GitHub блокує кириличний файл, автоматично переключаємось на резервний арт
+            img.onerror = function() {
+                this.onerror = null;
+                this.src = fallbackBase + cardData.fallback;
+            };
+
             front.appendChild(img);
 
             card.appendChild(back);
